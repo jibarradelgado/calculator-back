@@ -36,6 +36,9 @@ public class UserEntity {
     @Column(name = "last_login")
     private LocalDateTime lastLogin;
 
+    @Column(name = "last_top_up_time")
+    private LocalDateTime lastTopUpTime;
+
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     private List<RecordEntity> records;
 

@@ -7,4 +7,6 @@ import org.springframework.data.repository.ListPagingAndSortingRepository;
 
 public interface RecordPageSortRepository extends ListPagingAndSortingRepository <RecordEntity, Long> {
     Page<RecordEntity> findByDeletedFalse(Pageable pageable);
+
+    Page<RecordEntity> findByDeletedFalseAndOperationResponseContainingIgnoreCase(Pageable pageable, String operationResponse);
 }

@@ -25,6 +25,6 @@ public class OperationEntity {
     private Integer cost;
 
     public enum OperationType {
-        ADDITION, SUBTRACTION, MULTIPLICATION, DIVISION, SQUARE_ROOT, RANDOM_STRING, TOP_UP
+        ADDITION, SUBTRACTION, MULTIPLICATION, DIVISION, SQUARE_ROOT, RANDOM_STRING
     }
 }
