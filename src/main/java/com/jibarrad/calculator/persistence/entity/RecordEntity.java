@@ -33,10 +33,10 @@ public class RecordEntity {
     @Column(name = "balance_after_operation", nullable = false)
     private Integer balanceAfterOperation;
 
-    @Column(name = "operation_response")
+    @Column(name = "operation_response", nullable = false)
     private String operationResponse;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "boolean default false")
     private Boolean deleted;
 
     @Column(name = "date_time", nullable = false)

@@ -8,15 +8,20 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
-@EnableMethodSecurity(securedEnabled = true)
+@EnableMethodSecurity(securedEnabled = false)
 public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(customizeRequests -> {
-            customizeRequests
-                    .anyRequest()
-                    .authenticated();
+                    try {
+                        customizeRequests
+                                .anyRequest()
+                                .authenticated()
+                                .and().httpBasic();
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
                 })
                 .csrf(AbstractHttpConfigurer::disable);
 

@@ -1,33 +1,79 @@
 package com.jibarrad.calculator.service;
 
+import com.jibarrad.calculator.persistence.entity.OperationEntity;
+import com.jibarrad.calculator.persistence.entity.RecordEntity;
+import com.jibarrad.calculator.persistence.entity.UserEntity;
+import com.jibarrad.calculator.persistence.repository.OperationRepository;
+import com.jibarrad.calculator.persistence.repository.RecordRepository;
+import com.jibarrad.calculator.persistence.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 @Service
 public class CalculatorService {
 
-    public double addition(double num1, double num2) {
-        return num1 + num2;
+    private final UserRepository userRepository;
+    private final OperationRepository operationRepository;
+    private final RecordRepository recordRepository;
+
+    @Autowired
+    public CalculatorService(UserRepository userRepository, OperationRepository operationRepository, RecordRepository recordRepository) {
+        this.userRepository = userRepository;
+        this.operationRepository = operationRepository;
+        this.recordRepository = recordRepository;
     }
 
-    public double subtraction(double num1, double num2) {
-        return num1 - num2;
+    private RecordEntity setRecord(UserEntity user, OperationEntity operation, String result) {
+        RecordEntity record = new RecordEntity();
+        record.setUser(user);
+        record.setOperation(operation);
+        record.setDateTime(LocalDateTime.now());
+        record.setOperationResponse(result);
+        record.setBalanceBeforeOperation(user.getBalance());
+        record.setBalanceAfterOperation(user.getBalance() - operation.getCost());
+        return record;
     }
 
-    public double multiplication(double num1, double num2) {
-        return num1 * num2;
-    }
+    @Transactional
+    public double performArithmeticOperation(Long userId, double num1, double num2, OperationEntity.OperationType operationType) {
+        UserEntity user = userRepository.findById(userId).orElse(null);
+        OperationEntity operation = operationRepository.findByTypeEquals(OperationEntity.OperationType.ADDITION.toString());
 
-    public double division(double num1, double num2) {
-        if(num2 == 0) {
-            throw new IllegalArgumentException("Division by zero is not allowed.");
+        if (user == null) {
+            throw new RuntimeException("User doesn't exist");
         }
-        return num1 / num2;
-    }
-
-    public double squareRoot(double num) {
-        if(num < 0) {
-            throw new IllegalArgumentException("Square root of a negative number is not allowed.");
+        if (user.getBalance() < operation.getCost()) {
+            throw new RuntimeException("Operation rejected. User does not have enough credits.");
         }
-        return Math.sqrt(num);
+
+        double result = 0;
+        switch (operationType) {
+            case ADDITION -> result = num1 + num2;
+            case SUBTRACTION -> result = num1 - num2;
+            case MULTIPLICATION -> result = num1 * num2;
+            case DIVISION -> {
+                if(num2 == 0) {
+                    throw new IllegalArgumentException("Division by zero is not allowed.");
+                }
+                result = num1 / num2;
+            }
+            case SQUARE_ROOT -> {
+                if(num1 < 0) {
+                    throw new IllegalArgumentException("Square root of a negative number is not allowed.");
+                }
+                result = Math.sqrt(num1);
+            }
+        }
+
+        RecordEntity record = setRecord(user, operation, String.valueOf(result));
+
+        recordRepository.save(record);
+        user.setBalance(user.getBalance() - operation.getCost());
+        userRepository.save(user);
+
+        return result;
     }
 }

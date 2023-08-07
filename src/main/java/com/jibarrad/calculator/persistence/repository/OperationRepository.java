@@ -4,4 +4,5 @@ import com.jibarrad.calculator.persistence.entity.OperationEntity;
 import org.springframework.data.repository.ListCrudRepository;
 
 public interface OperationRepository extends ListCrudRepository<OperationEntity, Long> {
+    OperationEntity findByTypeEquals(String type);
 }

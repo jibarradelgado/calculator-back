@@ -11,9 +11,6 @@ import java.util.Map;
 
 @Service
 public class RandomStringService {
-    private final String RANDOM_API_URL = "https://www.random.org/strings/";
-    private final String ON = "on";
-    private final String OFF = "off";
     private final RestTemplate restTemplate;
 
     @Autowired
@@ -28,15 +25,18 @@ public class RandomStringService {
     }
 
     private String buildRandomApiUrl(int num, int len, boolean digits, boolean upperAlpha, boolean lowerAlpha, boolean unique) {
+        String RANDOM_API_URL = "https://www.random.org/strings/";
+        String ON = "on";
+        String OFF = "off";
         StringBuilder urlBuilder = new StringBuilder(RANDOM_API_URL);
 
         Map<String, String> params = new HashMap<>();
         params.put("num", String.valueOf(num));
         params.put("len", String.valueOf(len));
-        params.put("digits", digits ? ON : OFF );
-        params.put("upperalpha", upperAlpha ? ON : OFF );
-        params.put("loweralpha", lowerAlpha ? ON : OFF );
-        params.put("unique", unique ? ON : OFF );
+        params.put("digits", digits ? ON : OFF);
+        params.put("upperalpha", upperAlpha ? ON : OFF);
+        params.put("loweralpha", lowerAlpha ? ON : OFF);
+        params.put("unique", unique ? ON : OFF);
         //hardcoded a pair of params.
         params.put("format", "plain" );
         params.put("rnd", "new" );
