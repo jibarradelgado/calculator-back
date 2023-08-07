@@ -33,4 +33,18 @@ public class RecordService {
         return this.recordPageSortRepository.findByDeletedFalseAndOperationResponseContainingIgnoreCase(pageRequest, operationResult);
     }
 
+    public Page<RecordEntity> getAllContainingOperationResult(Long userId, int page, int elements, String sortBy, String sortDirection, String operationResult) {
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortBy);
+        Pageable pageRequest = PageRequest.of(page, elements, sort);
+        return this.recordPageSortRepository.findRecordsByOperationResponseAndUserId(pageRequest, operationResult, userId);
+    }
+
+    public Boolean exists(Long recordId) {
+        return  this.recordRepository.existsById(recordId);
+    }
+
+    public RecordEntity save(RecordEntity record) {
+        return this.recordRepository.save(record);
+    }
+
 }

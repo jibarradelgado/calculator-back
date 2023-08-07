@@ -37,18 +37,7 @@ public class CalculatorService {
         return record;
     }
 
-    @Transactional
-    public double performArithmeticOperation(Long userId, double num1, double num2, OperationEntity.OperationType operationType) {
-        UserEntity user = userRepository.findById(userId).orElse(null);
-        OperationEntity operation = operationRepository.findByTypeEquals(OperationEntity.OperationType.ADDITION.toString());
-
-        if (user == null) {
-            throw new RuntimeException("User doesn't exist");
-        }
-        if (user.getBalance() < operation.getCost()) {
-            throw new RuntimeException("Operation rejected. User does not have enough credits.");
-        }
-
+    private static double getResult(double num1, double num2, OperationEntity.OperationType operationType) {
         double result = 0;
         switch (operationType) {
             case ADDITION -> result = num1 + num2;
@@ -67,8 +56,47 @@ public class CalculatorService {
                 result = Math.sqrt(num1);
             }
         }
+        return result;
+    }
 
-        RecordEntity record = setRecord(user, operation, String.valueOf(result));
+    private static String getOperation(double num1, double num2, OperationEntity.OperationType operationType) {
+        String operation = "";
+        switch (operationType) {
+            case ADDITION -> operation = num1 + " + " + num2 + " = ";
+            case SUBTRACTION -> operation = num1 + " - " + num2 + " = ";
+            case MULTIPLICATION -> operation = num1 + " * " + num2 + " = ";
+            case DIVISION -> {
+                if(num2 == 0) {
+                    throw new IllegalArgumentException("Division by zero is not allowed.");
+                }
+                operation = num1 + " / " + num2 + " = ";
+            }
+            case SQUARE_ROOT -> {
+                if(num1 < 0) {
+                    throw new IllegalArgumentException("Square root of a negative number is not allowed.");
+                }
+                operation = "√" + num1 + " = ";
+            }
+        }
+        return operation;
+    }
+
+    @Transactional
+    public double performArithmeticOperation(Long userId, double num1, double num2, OperationEntity.OperationType operationType) {
+        UserEntity user = userRepository.findById(userId).orElse(null);
+        OperationEntity operation = operationRepository.findByTypeEquals(OperationEntity.OperationType.ADDITION.toString());
+
+        if (user == null) {
+            throw new RuntimeException("User doesn't exist");
+        }
+        if (user.getBalance() < operation.getCost()) {
+            throw new RuntimeException("Operation rejected. User does not have enough credits.");
+        }
+
+        double result = getResult(num1, num2, operationType);
+        String operationString = getOperation(num1,num2,operationType);
+
+        RecordEntity record = setRecord(user, operation, operationString + String.valueOf(result));
 
         recordRepository.save(record);
         user.setBalance(user.getBalance() - operation.getCost());
@@ -76,4 +104,6 @@ public class CalculatorService {
 
         return result;
     }
+
+
 }

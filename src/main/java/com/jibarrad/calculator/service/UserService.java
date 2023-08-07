@@ -19,8 +19,12 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
+    public UserEntity getUser(Long userId) {
+        return userRepository.findById(userId).orElse(null);
+    }
+
     @Transactional
-    public void topUpCredits(UserEntity user) {
+    public UserEntity topUpCredits(UserEntity user) {
         LocalDateTime lastTopUpTime = user.getLastTopUpTime();
         if(lastTopUpTime != null) {
             LocalDateTime fiveMinutesAgo = LocalDateTime.now().minusMinutes(5);
@@ -33,5 +37,7 @@ public class UserService {
         user.setBalance(BALANCE);
         user.setLastTopUpTime(LocalDateTime.now());
         userRepository.save(user);
+
+        return user;
     }
 }
