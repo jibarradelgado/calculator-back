@@ -4,11 +4,13 @@ import com.jibarrad.calculator.persistence.entity.UserEntity;
 import com.jibarrad.calculator.persistence.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.core.Local;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Calendar;
 
+@Service
 public class UserService {
 
     private final UserRepository userRepository;
