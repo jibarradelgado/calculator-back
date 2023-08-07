@@ -48,4 +48,15 @@ public class UserEntity {
     public enum Status {
         ACTIVE, INACTIVE
     }
+
+    @Override
+    public String toString() {
+        return "UserEntity{" +
+                "username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", active=" + status +
+                ", balance=" + balance +
+                ", roles=" + roles +
+                '}';
+    }
 }
