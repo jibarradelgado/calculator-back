@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 public class CalculatorService {
@@ -34,6 +35,7 @@ public class CalculatorService {
         record.setOperationResponse(result);
         record.setBalanceBeforeOperation(user.getBalance());
         record.setBalanceAfterOperation(user.getBalance() - operation.getCost());
+        record.setDeleted(false);
         return record;
     }
 
@@ -84,22 +86,25 @@ public class CalculatorService {
     @Transactional
     public double performArithmeticOperation(Long userId, double num1, double num2, OperationEntity.OperationType operationType) {
         UserEntity user = userRepository.findById(userId).orElse(null);
-        OperationEntity operation = operationRepository.findByTypeEquals(OperationEntity.OperationType.ADDITION.toString());
+        Optional<OperationEntity> operation = operationRepository.findByType(operationType);
 
         if (user == null) {
             throw new RuntimeException("User doesn't exist");
         }
-        if (user.getBalance() < operation.getCost()) {
+        if (operation.isEmpty()) {
+            throw new RuntimeException("Operation doesn't exist in database");
+        }
+        if (user.getBalance() < operation.get().getCost()) {
             throw new RuntimeException("Operation rejected. User does not have enough credits.");
         }
 
         double result = getResult(num1, num2, operationType);
         String operationString = getOperation(num1,num2,operationType);
 
-        RecordEntity record = setRecord(user, operation, operationString + String.valueOf(result));
+        RecordEntity record = setRecord(user, operation.get(), operationString + String.valueOf(result));
 
         recordRepository.save(record);
-        user.setBalance(user.getBalance() - operation.getCost());
+        user.setBalance(user.getBalance() - operation.get().getCost());
         userRepository.save(user);
 
         return result;

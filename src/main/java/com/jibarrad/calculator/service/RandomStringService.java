@@ -9,14 +9,18 @@ import com.jibarrad.calculator.persistence.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import java.nio.charset.StandardCharsets;
+import java.sql.Array;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,6 +36,7 @@ public class RandomStringService {
         this.userRepository = userRepository;
         this.operationRepository = operationRepository;
         this.recordRepository = recordRepository;
+        restTemplate.getMessageConverters().add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
         this.restTemplate = restTemplate;
     }
 
@@ -43,31 +48,37 @@ public class RandomStringService {
         record.setOperationResponse(result);
         record.setBalanceBeforeOperation(user.getBalance());
         record.setBalanceAfterOperation(user.getBalance() - operation.getCost());
+        record.setDeleted(false);
         return record;
     }
 
     @Transactional
     public String[] getRandomStrings(Long userId, int num, int len, boolean digits, boolean upperAlpha, boolean lowerAlpha, boolean unique) {
         UserEntity user = userRepository.findById(userId).orElse(null);
-        OperationEntity operation = operationRepository.findByTypeEquals(OperationEntity.OperationType.RANDOM_STRING.toString());
+        Optional<OperationEntity> operation = operationRepository.findByType(OperationEntity.OperationType.RANDOM_STRING);
 
         if (user == null) {
             throw new RuntimeException("User doesn't exist");
         }
-        if (user.getBalance() < operation.getCost()) {
+        if (operation.isEmpty()) {
+            throw new RuntimeException("Operation doesn't exist in database");
+        }
+        if (user.getBalance() < operation.get().getCost()) {
             throw new RuntimeException("Operation rejected. User does not have enough credits.");
         }
 
         String url = buildRandomApiUrl(num, len, digits, upperAlpha, lowerAlpha, unique);
-        ResponseEntity<String[]> response = restTemplate.exchange(url, HttpMethod.GET, null, String[].class);
-        String[] stringsFromList = response.getBody();
+        ResponseEntity<String> responseEntity = restTemplate.getForEntity(url, String.class);
+        String response = responseEntity.getBody();
 
-        RecordEntity record = setRecord(user, operation, String.join(", ", stringsFromList));
+        String[] strings = response.trim().split("\\r?\\n");
+
+        RecordEntity record = setRecord(user, operation.get(), String.join(", ", strings));
         recordRepository.save(record);
-        user.setBalance(user.getBalance() - operation.getCost());
+        user.setBalance(user.getBalance() - operation.get().getCost());
         userRepository.save(user);
 
-        return stringsFromList;
+        return strings;
     }
 
     private String buildRandomApiUrl(int num, int len, boolean digits, boolean upperAlpha, boolean lowerAlpha, boolean unique) {

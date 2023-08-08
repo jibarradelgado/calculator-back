@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -13,7 +14,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class UserEntity {
+public class UserEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -53,7 +54,6 @@ public class UserEntity {
     public String toString() {
         return "UserEntity{" +
                 "username='" + username + '\'' +
-                ", password='" + password + '\'' +
                 ", active=" + status +
                 ", balance=" + balance +
                 ", roles=" + roles +

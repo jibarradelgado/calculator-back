@@ -10,6 +10,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class RecordService {
     private final RecordRepository recordRepository;
@@ -37,6 +39,10 @@ public class RecordService {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortBy);
         Pageable pageRequest = PageRequest.of(page, elements, sort);
         return this.recordPageSortRepository.findRecordsByOperationResponseAndUserId(pageRequest, operationResult, userId);
+    }
+
+    public RecordEntity getById(Long recordId) {
+        return this.recordRepository.findById(recordId).orElse(null);
     }
 
     public Boolean exists(Long recordId) {

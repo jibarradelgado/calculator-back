@@ -14,6 +14,7 @@ public interface RecordPageSortRepository extends ListPagingAndSortingRepository
 
     @Query(value =
             "SELECT * FROM record " +
+            "WHERE deleted = false " +
             "AND LOWER(operation_response) LIKE %:operationResponse% " +
             "AND user_id = :userId", nativeQuery = true)
     Page<RecordEntity> findRecordsByOperationResponseAndUserId(Pageable pageable, @Param("operationResponse") String operationResponse, @Param("userId") Long userId);

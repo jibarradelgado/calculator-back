@@ -2,6 +2,7 @@ package com.jibarrad.calculator.web.v1.controller;
 
 import com.jibarrad.calculator.persistence.entity.UserEntity;
 import com.jibarrad.calculator.service.UserService;
+import com.jibarrad.calculator.service.dto.UserBalanceDTO;
 import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +26,11 @@ public class UserController {
             if(user == null) {
                 return ResponseEntity.badRequest().body("User doesn't exist");
             }
-            return ResponseEntity.ok(this.userService.topUpCredits(user));
+            UserEntity userEntity = this.userService.topUpCredits(user);
+            UserBalanceDTO userBalanceDTO = new UserBalanceDTO();
+            userBalanceDTO.setUsername(userEntity.getUsername());
+            userBalanceDTO.setBalance(userEntity.getBalance());
+            return ResponseEntity.ok(userBalanceDTO);
         } catch (RuntimeException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
         }

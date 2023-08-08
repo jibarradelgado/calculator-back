@@ -64,7 +64,7 @@ public class CalculatorController {
     @PostMapping("/square_root")
     public ResponseEntity<?> performSquareRoot(@RequestBody CalculatorRequest request) {
         try {
-            double result = calculatorService.performArithmeticOperation(request.getUserId(), request.getNum1(), request.getNum2(), OperationEntity.OperationType.SUBTRACTION);
+            double result = calculatorService.performArithmeticOperation(request.getUserId(), request.getNum1(), request.getNum2(), OperationEntity.OperationType.SQUARE_ROOT);
             return ResponseEntity.ok(result);
         } catch (RuntimeException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
