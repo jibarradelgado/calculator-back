@@ -4,6 +4,7 @@ import com.jibarrad.calculator.service.dto.LoginRequest;
 import com.jibarrad.calculator.web.config.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -27,7 +28,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Void> login(@RequestBody LoginRequest loginDto) {
+    public ResponseEntity<String> login(@RequestBody LoginRequest loginDto) {
         UsernamePasswordAuthenticationToken login = new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword());
         Authentication authentication = this.authenticationManager.authenticate(login);
 
@@ -36,6 +37,10 @@ public class AuthController {
 
         String jwt = this.jwtUtil.create(loginDto.getUsername());
 
-        return ResponseEntity.ok().header(HttpHeaders.AUTHORIZATION, jwt).build();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON); // Set the content type to JSON
+        headers.set(HttpHeaders.AUTHORIZATION, jwt); // Set the Authorization header
+
+        return ResponseEntity.ok().headers(headers).body("{\"message\": \"Login successful\"}");
     }
 }

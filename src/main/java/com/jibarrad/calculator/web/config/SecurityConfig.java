@@ -31,7 +31,6 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        String stringy = API_PATH+API_VERSION+"/auth/login";
         http.authorizeHttpRequests(customizeRequests -> {
                     try {
                         customizeRequests
