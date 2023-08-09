@@ -36,8 +36,8 @@ public class RecordController {
             recordDTO.setOperationType(record.getOperation().getType());
             recordDTO.setUsername(record.getUser().getUsername());
             recordDTO.setUser_id(record.getUser().getIdUser());
-            recordDTO.setBalance_before(record.getBalanceBeforeOperation());
-            recordDTO.setBalance_after(record.getBalanceAfterOperation());
+            recordDTO.setBalanceBefore(record.getBalanceBeforeOperation());
+            recordDTO.setBalanceAfter(record.getBalanceAfterOperation());
             recordDTO.setOperationResponse(record.getOperationResponse());
             recordDTO.setDeleted(record.getDeleted());
             recordDTO.setDateTime(record.getDateTime());

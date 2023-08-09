@@ -11,8 +11,8 @@ public class RecordDTO {
     private OperationEntity.OperationType operationType;
     private String username;
     private Long user_id;
-    private Integer balance_before;
-    private Integer balance_after;
+    private Integer balanceBefore;
+    private Integer balanceAfter;
     private String operationResponse;
     private Boolean deleted;
     private LocalDateTime dateTime;

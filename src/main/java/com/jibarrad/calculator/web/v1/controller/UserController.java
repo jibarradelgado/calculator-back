@@ -39,6 +39,7 @@ public class UserController {
             UserDTO userDTO = new UserDTO();
             userDTO.setUserId(user.getIdUser());
             userDTO.setUsername(user.getUsername());
+            userDTO.setBalance(user.getBalance());
             return ResponseEntity.ok(userDTO);
         } catch (RuntimeException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
