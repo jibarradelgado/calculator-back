@@ -4,6 +4,7 @@ import com.jibarrad.calculator.persistence.entity.RecordEntity;
 import com.jibarrad.calculator.service.RecordService;
 import com.jibarrad.calculator.service.dto.DeletedRecordDTO;
 import com.jibarrad.calculator.service.dto.RecordDTO;
+import com.jibarrad.calculator.service.dto.RecordToDeleteDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -22,15 +23,14 @@ public class RecordController {
     public RecordController(RecordService recordService) { this.recordService = recordService; }
 
     @GetMapping("")
-    public ResponseEntity<List<RecordDTO>> getRecordsLikeOperationResult(@RequestParam(defaultValue = "") String operationResult,
+    public ResponseEntity<Page<RecordDTO>> getRecordsLikeOperationResult(@RequestParam(defaultValue = "") String operationResult,
                                                                             @RequestParam Long userId,
                                                                             @RequestParam(defaultValue = "0") int page,
                                                                             @RequestParam(defaultValue = "10") int elements,
                                                                             @RequestParam(defaultValue = "date_time") String sortBy,
                                                                             @RequestParam(defaultValue = "DESC") String sortDirection) {
         Page<RecordEntity> recordEntityPage = this.recordService.getAllContainingOperationResult(userId,page,elements,sortBy,sortDirection, operationResult);
-        List<RecordDTO> records = new ArrayList<>();
-        for(RecordEntity record : recordEntityPage.getContent()){
+        Page<RecordDTO> records = recordEntityPage.map(record -> {
             RecordDTO recordDTO = new RecordDTO();
             recordDTO.setRecord_id(record.getId());
             recordDTO.setOperationType(record.getOperation().getType());
@@ -41,15 +41,15 @@ public class RecordController {
             recordDTO.setOperationResponse(record.getOperationResponse());
             recordDTO.setDeleted(record.getDeleted());
             recordDTO.setDateTime(record.getDateTime());
-            records.add(recordDTO);
-        }
+            return recordDTO;
+        });
         return ResponseEntity.ok(records);
     }
 
     @PatchMapping("/delete")
-    public ResponseEntity<DeletedRecordDTO> softDelete(@RequestBody RecordDTO record) {
-        if(record.getRecord_id() != null && this.recordService.exists(record.getRecord_id())) {
-            RecordEntity recordToDelete = this.recordService.getById(record.getRecord_id());
+    public ResponseEntity<DeletedRecordDTO> softDelete(@RequestBody RecordToDeleteDTO record) {
+        if(this.recordService.exists(record.getRecordId())) {
+            RecordEntity recordToDelete = this.recordService.getById(record.getRecordId());
             recordToDelete.setDeleted(true);
             RecordEntity deletedRecord = this.recordService.save(recordToDelete);
             DeletedRecordDTO deletedRecordDTO = new DeletedRecordDTO();

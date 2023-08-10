@@ -13,10 +13,12 @@ public interface RecordPageSortRepository extends ListPagingAndSortingRepository
     Page<RecordEntity> findByDeletedFalseAndOperationResponseContainingIgnoreCase(Pageable pageable, String operationResponse);
 
     @Query(value =
-            "SELECT * FROM record " +
-            "WHERE deleted = false " +
-            "AND LOWER(operation_response) LIKE %:operationResponse% " +
-            "AND user_id = :userId", nativeQuery = true)
+            "SELECT r.*, o.operation_type AS operation_type " +
+            "FROM record r " +
+            "INNER JOIN operation o ON r.operation_id = o.operation_id " +
+            "WHERE r.deleted = false " +
+            "AND LOWER(r.operation_response) LIKE %:operationResponse% " +
+            "AND r.user_id = :userId" , nativeQuery = true)
     Page<RecordEntity> findRecordsByOperationResponseAndUserId(Pageable pageable, @Param("operationResponse") String operationResponse, @Param("userId") Long userId);
 
 }
