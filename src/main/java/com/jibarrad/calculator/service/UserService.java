@@ -35,10 +35,10 @@ public class UserService {
     public UserEntity topUpCredits(UserEntity user) {
         LocalDateTime lastTopUpTime = user.getLastTopUpTime();
         if(lastTopUpTime != null) {
-            LocalDateTime fiveMinutesAgo = LocalDateTime.now().minusMinutes(1);
+            LocalDateTime fiveSecondsAgo = LocalDateTime.now().minusSeconds(5);
 
-            if(lastTopUpTime.isAfter(fiveMinutesAgo)) {
-                throw new RuntimeException("Top-up not allowed. Last top-up was less than 5 minutes ago");
+            if(lastTopUpTime.isAfter(fiveSecondsAgo)) {
+                throw new RuntimeException("Top-up not allowed. Last top-up was less than 5 seconds ago");
             }
         }
 
